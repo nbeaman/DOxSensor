@@ -29,11 +29,24 @@ CRGB leds[NUM_LEDS];  // Define the array of leds
 //BUTTON
 Button button1(2);                                      // Connect your button between pin 2 and GND
 int     GV_LCD_MAIN_TEXT_INDEX=0;                          // Text to show in top left of LCD (DO sensor name, IP Address, Program version, FireBeatle version.  Depending on the button.
-String  GV_LCD_MAIN_TEXT[4] = {"xxx.xxx.xxx.xxx \0",    //Text to cycle through when button is pressed.
-                                "JoeSmoe        \0",
-                                "V12.28         \0",
-                                "Program V1.00  \0"};
+String  GV_LCD_MAIN_TEXT[4]   = { "xxx.xxx.xxx.xxx",    //Text to cycle through when button is pressed.
+                                  "JoeSmoe        ",
+                                  "V12.28         ",
+                                  "Program V1.00  "};
 //-----
+
+String Pad15charWithSpaces(String str){
+  String temp="               ";              // 15 spaces, 16th spot is '\0'
+  bool EndOfsptr=false;
+  for (int i=0; i<15; i++){                   // only loop 15 times so the last char of temp can be set to NULL character '\0'
+    if (str[i] =='\0') EndOfsptr=true;        // found end of char array passed in str string
+    //if (EndOfsptr) if (i==14) temp[i]='e'; else temp[i]='.'; //for testing:           
+    if (EndOfsptr) temp[i]=' ';               // already found end of str? Pad with spaces
+    else temp[i]=str[i];                      // end of str not found, so add it to temp string
+  }
+  temp[15]='\0';
+  return temp;
+}
  
 // LCD
 LiquidCrystal_I2C lcd(0x27, 16, 2);               // set the LCD address to 0x27 for a 16 chars and 2 line
@@ -100,7 +113,7 @@ void setup() {
   lcd.clear();
   
   IPAddress IP=WiFi.localIP();
-  GV_LCD_MAIN_TEXT[0]=String(IP[0]) + '.' + String(IP[1]) + '.' + String(IP[2]) + '.' + String(IP[3]);
+  GV_LCD_MAIN_TEXT[0]=Pad15charWithSpaces( String(IP[0]) + '.' + String(IP[1]) + '.' + String(IP[2]) + '.' + String(IP[3]) );
 
   SendCommandAndSetDOxVariables("name,?");          // get the name of the DO sensor to display on the LCD
   
@@ -146,7 +159,7 @@ void loop() {
     Serial.println("DOOD");
     Serial.println(GV_DOX_DATA);
     GV_DOX_DATA.remove(0,6);
-    GV_LCD_MAIN_TEXT[1]=GV_DOX_DATA;
+    GV_LCD_MAIN_TEXT[1]=Pad15charWithSpaces(GV_DOX_DATA);
     GV_LCD_MAIN_TEXT_INDEX=1;
     LCD_DISPLAY(GV_LCD_MAIN_TEXT[GV_LCD_MAIN_TEXT_INDEX],0,0,NoClearLCD,PrintSerial);
     GV_QUERY_DO_NAME_ON_NEXT_COMMAND = false;
