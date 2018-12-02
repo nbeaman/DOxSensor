@@ -92,7 +92,7 @@ void setup() {
 
   //LED LIGHTS
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
-  FastLED.setBrightness(5);
+  
   //----------
   
   //BUTTON
@@ -203,18 +203,35 @@ void loop() {
 
 
 //===============================[ FUNCTIONS ]=========================
+void LED_Clear(){
+  for (i=0; i!=6; i++){
+    leds[i] = CRGB::Black;
+  }
+}
+
+void LED_DOreturn_code_Fade(int code){
+  FastLED.setBrightness(100);
+  switch (code){
+    case 1:   fill_solid(leds, NUM_LEDS, CRGB(0,    0,    255)); break;   //blue
+    case 2:   fill_solid(leds, NUM_LEDS, CRGB(255,  0,      0)); break;   //red
+    case 254: fill_solid(leds, NUM_LEDS, CRGB(255,  255,    0)); break;   //yellow
+    case 255: fill_solid(leds, NUM_LEDS, CRGB(255,  255,  255)); break;   //white
+  }
+  for (int i=0; i<100; i++){
+    delay(15);
+    for (int j=0; j<7; j++){
+      leds[j].fadeToBlackBy ( i );   
+    }
+    FastLED.show();
+  }
+}
+
 void LED_Center_Blue(bool ON){
   if (ON) {
     leds[0] = CRGB::Blue;
     FastLED.show();    
   }else{
-    leds[0] = CRGB::Black;
-    leds[1] = CRGB::Black;
-    leds[2] = CRGB::Black;
-    leds[3] = CRGB::Black;
-    leds[4] = CRGB::Black;
-    leds[5] = CRGB::Black;
-    leds[6] = CRGB::Black;
+    LED_Clear();
     FastLED.show();    
   }
   
@@ -271,6 +288,7 @@ void BUTTON_WasItPressed_ChangeLCD(){
 }
 
 void LCDshowHeartBeat() {
+  FastLED.setBrightness(5);
   if ((millis() - HeartBeatMillis) > 1000) {
     if (HeartBeat != ' ') {
       HeartBeat = ' ';
